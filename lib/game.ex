@@ -47,4 +47,8 @@ defmodule Game do
 
     %{game | players: Map.put(game.players, id, new_player)}
   end
+
+  def get_player(%__MODULE__{} = game, id) do
+    Map.get(game.players, id, %Player{})
+  end
 end

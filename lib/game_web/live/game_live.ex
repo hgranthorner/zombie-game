@@ -39,31 +39,27 @@ defmodule GameWeb.GameLive do
   end
 
   def handle_event("move", %{"key" => key, "id" => id}, socket) do
-    PubSub.broadcast!(Game.PubSub, "game", {:move, id, key})
+    player = Map.get(socket.assigns.game.players, id, %Game.Player{})
+
+    new_player =
+      case key do
+        "ArrowUp" -> %{player | y: player.y - 3}
+        "ArrowDown" -> %{player | y: player.y + 3}
+        "ArrowLeft" -> %{player | x: player.x - 3}
+        "ArrowRight" -> %{player | x: player.x + 3}
+        _ -> player
+      end
+
+    Logger.info(player: new_player)
+    PubSub.broadcast!(Game.PubSub, "game", {:move, id, new_player})
     {:noreply, socket}
   end
 
-  def handle_info({:move, id, "ArrowRight"}, socket) do
-    {:noreply, assign_player(id, :x, &(&1.x + 3), socket)}
+  def handle_info({:move, id, player}, socket) do
+    {:noreply, assign_player(id, player, socket)}
   end
 
-  def handle_info({:move, id, "ArrowLeft"}, socket) do
-    {:noreply, assign_player(id, :x, &(&1.x - 3), socket)}
-  end
-
-  def handle_info({:move, id, "ArrowDown"}, socket) do
-    {:noreply, assign_player(id, :y, &(&1.y + 3), socket)}
-  end
-
-  def handle_info({:move, id, "ArrowUp"}, socket) do
-    {:noreply, assign_player(id, :y, &(&1.y - 3), socket)}
-  end
-
-  def handle_info({:move, _id, _key}, socket) do
-    {:noreply, socket}
-  end
-
-  defp assign_player(id, key, socket_fn, socket) do
-    assign(socket, game: Game.put_player(socket.assigns.game, id, key, socket_fn))
+  defp assign_player(id, player, socket) do
+    assign(socket, game: Game.put_player(socket.assigns.game, id, player))
   end
 end
