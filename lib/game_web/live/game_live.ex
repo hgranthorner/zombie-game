@@ -17,7 +17,7 @@ defmodule GameWeb.GameLive do
 
   def render(assigns) do
     ~H"""
-    <div style="width: 500px; height: 500px" class="relative">
+    <div style="width: 500px; height: 500px" class="relative border-solid border-2 border-slate-500">
       <%= for {id, %{w: w, h: h, x: x, y: y}} <- @game.players do %>
         <%= if id == @id do %>
           <div
